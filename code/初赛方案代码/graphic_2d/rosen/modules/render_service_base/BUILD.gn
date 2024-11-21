@@ -1,0 +1,539 @@
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/graphic/graphic_2d/graphic_config.gni")
+import(
+    "//foundation/graphic/graphic_2d/rosen/modules/render_service_base/config.gni")
+
+config("export_config") {
+  cflags_cc = [ "-std=c++17" ]
+  include_dirs = [ "include" ]
+
+  defines = rs_common_define
+}
+
+if (!is_mingw && !is_mac && !is_cross_platform) {
+  defines = [ "ENABLE_RUST" ]
+  rust_cxx("particle_cxx_gen") {
+    sources = [ "rust/src/lib.rs" ]
+  }
+
+  ohos_rust_static_ffi("particle_cxx_rust") {
+    sources = [ "rust/src/lib.rs" ]
+    deps = [ "//third_party/rust/crates/cxx:lib" ]
+    part_name = "graphic_2d"
+    subsystem_name = "graphic"
+  }
+
+  ohos_static_library("particle_cxx_cppdeps") {
+    branch_protector_ret = "pac_ret"
+    sanitize = {
+      cfi = false
+      cfi_cross_dso = false
+      debug = false
+      blocklist = "./rs_base_blocklist.txt"
+    }
+    part_name = "graphic_2d"
+    subsystem_name = "graphic"
+    defines += [ "RUST_CXX_NO_EXCEPTIONS" ]
+    sources = [
+      "//third_party/rust/crates/cxx/include/cxx.h",
+      "//third_party/rust/crates/cxx/src/cxx.cc",
+    ]
+    deps = [ "//third_party/rust/crates/cxx:lib" ]
+  }
+}
+
+ohos_source_set("render_service_base_src") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = false
+    cfi_cross_dso = false
+    debug = false
+    blocklist = "./rs_base_blocklist.txt"
+  }
+  defines = []
+  defines += gpu_defines
+  defines += [ "MODULE_RSB" ]
+
+  sources = [
+    #animation
+    "src/animation/rs_animation_fraction.cpp",
+    "src/animation/rs_animation_manager.cpp",
+    "src/animation/rs_animation_rate_decider.cpp",
+    "src/animation/rs_animation_timing_protocol.cpp",
+    "src/animation/rs_cubic_bezier_interpolator.cpp",
+    "src/animation/rs_interpolator.cpp",
+    "src/animation/rs_render_animation.cpp",
+    "src/animation/rs_render_curve_animation.cpp",
+    "src/animation/rs_render_interpolating_spring_animation.cpp",
+    "src/animation/rs_render_keyframe_animation.cpp",
+    "src/animation/rs_render_particle.cpp",
+    "src/animation/rs_render_particle_animation.cpp",
+    "src/animation/rs_render_particle_effector.cpp",
+    "src/animation/rs_render_particle_emitter.cpp",
+    "src/animation/rs_render_particle_system.cpp",
+    "src/animation/rs_render_path_animation.cpp",
+    "src/animation/rs_render_property_animation.cpp",
+    "src/animation/rs_render_spring_animation.cpp",
+    "src/animation/rs_render_transition.cpp",
+    "src/animation/rs_render_transition_effect.cpp",
+    "src/animation/rs_spring_interpolator.cpp",
+    "src/animation/rs_spring_model.cpp",
+    "src/animation/rs_steps_interpolator.cpp",
+    "src/animation/rs_value_estimator.cpp",
+
+    # message(depracated)
+    "src/command/rs_message_processor.cpp",
+
+    # modifier
+    "src/modifier/rs_render_modifier.cpp",
+    "src/modifier/rs_render_property.cpp",
+
+    #command
+    "src/command/rs_animation_command.cpp",
+    "src/command/rs_base_node_command.cpp",
+    "src/command/rs_canvas_drawing_node_command.cpp",
+    "src/command/rs_canvas_node_command.cpp",
+    "src/command/rs_command_factory.cpp",
+    "src/command/rs_display_node_command.cpp",
+    "src/command/rs_effect_node_command.cpp",
+    "src/command/rs_frame_rate_linker_command.cpp",
+    "src/command/rs_node_command.cpp",
+    "src/command/rs_node_showing_command.cpp",
+    "src/command/rs_proxy_node_command.cpp",
+    "src/command/rs_root_node_command.cpp",
+    "src/command/rs_surface_node_command.cpp",
+
+    #offscreen_render
+    "src/offscreen_render/rs_offscreen_render_thread.cpp",
+
+    #common
+    "src/common/rs_background_thread.cpp",
+    "src/common/rs_color.cpp",
+    "src/common/rs_common_def.cpp",
+    "src/common/rs_common_tools.cpp",
+    "src/common/rs_obj_abs_geometry.cpp",
+    "src/common/rs_occlusion_region.cpp",
+    "src/common/rs_occlusion_region_helper.cpp",
+    "src/common/rs_thread_handler_generic.cpp",
+    "src/common/rs_thread_looper_generic.cpp",
+    "src/common/rs_thread_looper_impl.cpp",
+
+    #delegate
+    "src/delegate/rs_functional_delegate.cpp",
+
+    #ipc_callbacks
+    "src/ipc_callbacks/buffer_available_callback_ipc_interface_code_access_verifier.cpp",
+    "src/ipc_callbacks/buffer_available_callback_proxy.cpp",
+    "src/ipc_callbacks/buffer_available_callback_stub.cpp",
+    "src/ipc_callbacks/buffer_clear_callback_ipc_interface_code_access_verifier.cpp",
+    "src/ipc_callbacks/buffer_clear_callback_proxy.cpp",
+    "src/ipc_callbacks/buffer_clear_callback_stub.cpp",
+    "src/ipc_callbacks/hgm_config_change_callback_proxy.cpp",
+    "src/ipc_callbacks/hgm_config_change_callback_stub.cpp",
+    "src/ipc_callbacks/iapplication_agent_ipc_interface_code_access_verifier.cpp",
+    "src/ipc_callbacks/rs_application_agent_proxy.cpp",
+    "src/ipc_callbacks/rs_application_agent_stub.cpp",
+    "src/ipc_callbacks/rs_ihgm_config_change_callback_ipc_interface_code_access_verifier.cpp",
+    "src/ipc_callbacks/rs_iocclusion_change_callback_ipc_interface_code_access_verifier.cpp",
+    "src/ipc_callbacks/rs_isurface_occlusion_change_callback_ipc_interface_code_access_verifier.cpp",
+    "src/ipc_callbacks/rs_occlusion_change_callback_proxy.cpp",
+    "src/ipc_callbacks/rs_occlusion_change_callback_stub.cpp",
+    "src/ipc_callbacks/rs_rt_refresh_callback.cpp",
+    "src/ipc_callbacks/rs_surface_occlusion_change_callback_proxy.cpp",
+    "src/ipc_callbacks/rs_surface_occlusion_change_callback_stub.cpp",
+    "src/ipc_callbacks/screen_change_callback_ipc_interface_code_access_verifier.cpp",
+    "src/ipc_callbacks/screen_change_callback_proxy.cpp",
+    "src/ipc_callbacks/screen_change_callback_stub.cpp",
+    "src/ipc_callbacks/surface_capture_callback_ipc_interface_code_access_verifier.cpp",
+    "src/ipc_callbacks/surface_capture_callback_proxy.cpp",
+    "src/ipc_callbacks/surface_capture_callback_stub.cpp",
+
+    #ipc_security
+    "src/ipc_security/rs_ipc_interface_code_access_verifier_base.cpp",
+
+    #memory
+    "src/memory/rs_memory_graphic.cpp",
+    "src/memory/rs_memory_track.cpp",
+    "src/memory/rs_tag_tracker.cpp",
+
+    #pipeline
+    "src/pipeline/rs_canvas_drawing_render_node.cpp",
+    "src/pipeline/rs_canvas_render_node.cpp",
+    "src/pipeline/rs_context.cpp",
+    "src/pipeline/rs_dirty_region_manager.cpp",
+    "src/pipeline/rs_display_render_node.cpp",
+    "src/pipeline/rs_draw_cmd.cpp",
+    "src/pipeline/rs_draw_cmd_list.cpp",
+    "src/pipeline/rs_effect_render_node.cpp",
+    "src/pipeline/rs_occlusion_config.cpp",
+    "src/pipeline/rs_paint_filter_canvas.cpp",
+    "src/pipeline/rs_proxy_render_node.cpp",
+    "src/pipeline/rs_recording_canvas.cpp",
+    "src/pipeline/rs_render_content.cpp",
+    "src/pipeline/rs_render_display_sync.cpp",
+    "src/pipeline/rs_render_frame_rate_linker.cpp",
+    "src/pipeline/rs_render_frame_rate_linker_map.cpp",
+    "src/pipeline/rs_render_node.cpp",
+    "src/pipeline/rs_render_node_map.cpp",
+    "src/pipeline/rs_root_render_node.cpp",
+    "src/pipeline/rs_single_frame_composer.cpp",
+    "src/pipeline/rs_surface_handler.cpp",
+    "src/pipeline/rs_surface_render_node.cpp",
+    "src/pipeline/rs_task_dispatcher.cpp",
+    "src/pipeline/rs_uni_render_judgement.cpp",
+    "src/pipeline/sk_resource_manager.cpp",
+
+    #property
+    "src/property/rs_color_picker_cache_task.cpp",
+    "src/property/rs_filter_cache_manager.cpp",
+    "src/property/rs_point_light_manager.cpp",
+    "src/property/rs_properties.cpp",
+    "src/property/rs_properties_painter.cpp",
+    "src/property/rs_property_drawable.cpp",
+    "src/property/rs_property_drawable_bounds_geometry.cpp",
+    "src/property/rs_property_drawable_frame_geometry.cpp",
+    "src/property/rs_property_drawable_utilities.cpp",
+    "src/property/rs_property_trace.cpp",
+
+    #render
+    "src/render/rs_aibar_filter.cpp",
+    "src/render/rs_blur_filter.cpp",
+    "src/render/rs_border.cpp",
+    "src/render/rs_color_extract.cpp",
+    "src/render/rs_color_picker.cpp",
+    "src/render/rs_filter.cpp",
+    "src/render/rs_image.cpp",
+    "src/render/rs_image_base.cpp",
+    "src/render/rs_image_cache.cpp",
+    "src/render/rs_kawase_blur.cpp",
+    "src/render/rs_light_up_effect_filter.cpp",
+    "src/render/rs_linear_gradient_blur_filter.cpp",
+    "src/render/rs_mask.cpp",
+    "src/render/rs_material_filter.cpp",
+    "src/render/rs_path.cpp",
+    "src/render/rs_pixel_map_util.cpp",
+    "src/render/rs_resource_manager.cpp",
+    "src/render/rs_shader.cpp",
+    "src/render/rs_shadow.cpp",
+    "src/render/rs_skia_filter.cpp",
+    "src/render/x_dual_grainy_gradient_blur.cpp",
+    "src/render/x_dual_kawase_gradient_blur.cpp",
+
+    #transaction
+    "src/transaction/rs_hgm_config_data.cpp",
+    "src/transaction/rs_occlusion_data.cpp",
+    "src/transaction/rs_transaction_data.cpp",
+    "src/transaction/rs_transaction_proxy.cpp",
+
+    #screen_manager
+    "src/screen_manager/rs_screen_capability.cpp",
+    "src/screen_manager/rs_screen_data.cpp",
+    "src/screen_manager/rs_screen_hdr_capability.cpp",
+    "src/screen_manager/rs_screen_mode_info.cpp",
+    "src/screen_manager/rs_screen_props.cpp",
+    "src/screen_manager/rs_virtual_screen_resolution.cpp",
+  ]
+
+  if (is_cross_platform) {
+    sources -= [
+      #command
+      "src/command/rs_display_node_command.cpp",
+
+      #common
+      "src/common/rs_occlusion_region.cpp",
+      "src/common/rs_occlusion_region_helper.cpp",
+      "src/common/rs_thread_handler_generic.cpp",
+      "src/common/rs_thread_looper_generic.cpp",
+      "src/common/rs_thread_looper_impl.cpp",
+
+      #ipc_callbacks
+      "src/ipc_callbacks/buffer_available_callback_ipc_interface_code_access_verifier.cpp",
+      "src/ipc_callbacks/buffer_available_callback_proxy.cpp",
+      "src/ipc_callbacks/buffer_available_callback_stub.cpp",
+      "src/ipc_callbacks/buffer_clear_callback_ipc_interface_code_access_verifier.cpp",
+      "src/ipc_callbacks/buffer_clear_callback_proxy.cpp",
+      "src/ipc_callbacks/buffer_clear_callback_stub.cpp",
+      "src/ipc_callbacks/hgm_config_change_callback_proxy.cpp",
+      "src/ipc_callbacks/hgm_config_change_callback_stub.cpp",
+      "src/ipc_callbacks/rs_ihgm_config_change_callback_ipc_interface_code_access_verifier.cpp",
+      "src/ipc_callbacks/rs_iocclusion_change_callback_ipc_interface_code_access_verifier.cpp",
+      "src/ipc_callbacks/rs_isurface_occlusion_change_callback_ipc_interface_code_access_verifier.cpp",
+      "src/ipc_callbacks/rs_occlusion_change_callback_proxy.cpp",
+      "src/ipc_callbacks/rs_occlusion_change_callback_stub.cpp",
+      "src/ipc_callbacks/rs_surface_occlusion_change_callback_proxy.cpp",
+      "src/ipc_callbacks/rs_surface_occlusion_change_callback_stub.cpp",
+      "src/ipc_callbacks/screen_change_callback_ipc_interface_code_access_verifier.cpp",
+      "src/ipc_callbacks/screen_change_callback_proxy.cpp",
+      "src/ipc_callbacks/screen_change_callback_stub.cpp",
+      "src/ipc_callbacks/surface_capture_callback_ipc_interface_code_access_verifier.cpp",
+      "src/ipc_callbacks/surface_capture_callback_proxy.cpp",
+      "src/ipc_callbacks/surface_capture_callback_stub.cpp",
+
+      #ipc_security
+      "src/ipc_security/rs_ipc_interface_code_access_verifier_base.cpp",
+
+      #memory
+      "src/memory/rs_memory_graphic.cpp",
+      "src/memory/rs_memory_track.cpp",
+      "src/memory/rs_tag_tracker.cpp",
+
+      #pipeline
+
+      "src/pipeline/rs_display_render_node.cpp",
+      "src/pipeline/rs_occlusion_config.cpp",
+
+      #property
+      "src/property/rs_property_drawable.cpp",
+      "src/property/rs_property_drawable_bounds_geometry.cpp",
+      "src/property/rs_property_drawable_frame_geometry.cpp",
+      "src/property/rs_property_drawable_utilities.cpp",
+
+      #transaction
+      "src/transaction/rs_hgm_config_data.cpp",
+      "src/transaction/rs_occlusion_data.cpp",
+
+      #screen_manager
+      "src/screen_manager/rs_screen_capability.cpp",
+      "src/screen_manager/rs_screen_data.cpp",
+      "src/screen_manager/rs_screen_hdr_capability.cpp",
+      "src/screen_manager/rs_screen_mode_info.cpp",
+      "src/screen_manager/rs_screen_props.cpp",
+      "src/screen_manager/rs_virtual_screen_resolution.cpp",
+    ]
+  }
+
+  cflags = [
+    "-Wall",
+    "-Wno-pointer-arith",
+    "-Wno-non-virtual-dtor",
+    "-Wno-missing-field-initializers",
+    "-Wno-c++11-narrowing",
+    "-fvisibility=hidden",
+    "-DIMAGE_COLORSPACE_FLAG",
+  ]
+
+  if (is_ohos && is_clang && (target_cpu == "arm" || target_cpu == "arm64")) {
+    cflags += [ "-flto=thin" ]
+    if (enhanced_opt) {
+      cflags += [ "-fwhole-program-vtables" ]
+      if (graphic_2d_feature_enable_pgo &&
+          graphic_2d_feature_product != "default") {
+        cflags += [
+          "-fprofile-use=" + rebase_path(
+                  "${graphic_2d_feature_pgo_path}/librender_service_base.profdata",
+                  root_build_dir),
+          "-Wno-error=backend-plugin",
+          "-Wno-profile-instr-out-of-date",
+          "-Wno-profile-instr-unprofiled",
+        ]
+      }
+      if (graphic_2d_feature_product == "pc" && target_cpu == "arm64") {
+        cflags += [ "-moutline-atomics" ]
+      }
+    }
+  }
+
+  cflags_cc = [
+    "-std=c++17",
+    "-fvisibility-inlines-hidden",
+  ]
+
+  public_configs = [ ":export_config" ]
+  public_deps = [ "src/platform:platform" ]
+
+  if (defined(use_new_render_context) && use_new_render_context) {
+    public_deps += [ "src/render_backend:librender_backend" ]
+  }
+
+  if (enable_export_macro) {
+    defines += [ "ENABLE_EXPORT_MACRO" ]
+  }
+
+  if (rs_enable_gpu) {
+    defines += [
+      "GL_GLEXT_PROTOTYPES",
+      "EGL_EGLEXT_PROTOTYPES",
+    ]
+  }
+
+  if (current_os == "ohos") {
+    defines += [ "IS_OHOS" ]
+    sources += [
+      "src/benchmarks/file_utils.cpp",
+      "src/benchmarks/rs_recording_thread.cpp",
+    ]
+  }
+
+  include_dirs = [
+    "$graphic_2d_root/frameworks/surface/include",
+    "$graphic_2d_root/rosen/modules/render_service_base/src",
+    "$graphic_2d_root/rosen/modules/render_service_base/include",
+    "$graphic_2d_root/utils/color_manager/export",
+    "$graphic_2d_root/utils/log",
+    "$graphic_2d_root/interfaces/inner_api/surface",
+  ]
+
+  if (is_arkui_x) {
+    include_dirs += [
+      "$graphic_2d_root/utils/color_manager/export",
+      "//foundation/multimedia/image_framework/interfaces/innerkits/include",
+    ]
+  }
+
+  include_dirs += [ "//third_party/skia/src" ]
+  deps = [
+    "$graphic_2d_root/utils/sandbox:sandbox_utils",
+    "$rosen_root/modules/platform:hilog",
+    "$rosen_root/modules/platform:ipc_core",
+  ]
+  external_deps = [ "hilog:libhilog" ]
+
+  if (!is_mingw && !is_mac && !is_cross_platform) {
+    defines += [ "ENABLE_RUST" ]
+    sources += get_target_outputs(":particle_cxx_gen")
+    include_dirs += [
+      "//third_party/rust/crates/cxx/include",
+      "${target_gen_dir}/rust/src",
+    ]
+    deps += [
+      ":particle_cxx_cppdeps",
+      ":particle_cxx_gen",
+      ":particle_cxx_rust",
+    ]
+  }
+
+  if (rosen_is_ohos && defined(enable_ipc_security) && enable_ipc_security) {
+    defines += [ "ENABLE_IPC_SECURITY" ]
+    external_deps += [
+      "access_token:libaccesstoken_sdk",
+      "access_token:libtokenid_sdk",
+      "ipc:ipc_core",
+    ]
+  }
+
+  if (rosen_is_ohos && defined(enable_ipc_security_access_counter) &&
+      enable_ipc_security_access_counter) {
+    defines += [ "ENABLE_IPC_SECURITY_ACCESS_COUNTER" ]
+  }
+
+  if (defined(use_rosen_drawing) && use_rosen_drawing) {
+    defines += [ "USE_ROSEN_DRAWING" ]
+    if (ace_enable_gpu) {
+      defines += [ "ACE_ENABLE_GPU" ]
+    }
+
+    deps += [ "$rosen_root/modules/2d_graphics:2d_graphics" ]
+  }
+
+  if (rosen_cross_platform) {
+    public_configs += [
+      "$rosen_root/modules/platform:eventhandler_config",
+      "$rosen_root/modules/platform:image_native_config",
+    ]
+  } else {
+    external_deps += [ "hitrace:hitrace_meter" ]
+  }
+
+  if (rosen_is_win) {
+    defines += [ "_USE_MATH_DEFINES" ]
+  }
+
+  if (defined(ddgr_ext_configs)) {
+    libs = ddgr_ext_configs.ddgr_libs
+    defines += ddgr_ext_configs.ddgr_defines
+    sources += ddgr_ext_configs.libddgr_ext_adaptor_base_sources
+    include_dirs += ddgr_ext_configs.libddgr_ext_adaptor_include_dirs
+  }
+
+  if (defined(graphic_2d_ext_configs.vendor_root)) {
+    sources -= graphic_2d_ext_configs.librender_service_base_ext_sources_del
+    sources += graphic_2d_ext_configs.librender_service_base_ext_sources
+  }
+
+  part_name = "graphic_2d"
+  subsystem_name = "graphic"
+}
+
+config("render_service_base_all_deps_config") {
+  include_dirs = [ "include" ]
+}
+
+config("render_service_base_link_config") {
+  if (is_ohos && is_clang && (target_cpu == "arm" || target_cpu == "arm64")) {
+    ldflags = [
+      "-Wl,--lto-O2",
+      "-Wl,-mllvm",
+      "-Wl,-wholeprogramdevirt-check=fallback",
+      "-Wl,-Bsymbolic",
+    ]
+  }
+}
+
+ohos_shared_library("librender_service_base") {
+  branch_protector_ret = "pac_ret"
+  if (!is_mingw && !is_win && !is_linux) {
+    sanitize = {
+      cfi = false
+      cfi_cross_dso = false
+      debug = false
+      blocklist = "./rs_base_blocklist.txt"
+    }
+  }
+
+  all_dependent_configs = [ ":render_service_base_all_deps_config" ]
+
+  if (enhanced_opt) {
+    configs = [ ":render_service_base_link_config" ]
+  }
+
+  deps = [ "$rosen_root/modules/platform:eventhandler" ]
+  public_deps = [
+    ":render_service_base_src",
+    "src/platform:platform",
+  ]
+  external_deps = [ "hilog:libhilog" ]
+
+  if (defined(use_new_render_context) && use_new_render_context) {
+    public_deps += [ "src/render_backend:librender_backend" ]
+  }
+
+  innerapi_tags = [ "platformsdk_indirect" ]
+  part_name = "graphic_2d"
+  subsystem_name = "graphic"
+}
+
+ohos_source_set("librender_service_base_static") {
+  branch_protector_ret = "pac_ret"
+  sanitize = {
+    cfi = false
+    cfi_cross_dso = false
+    debug = false
+    blocklist = "./rs_base_blocklist.txt"
+  }
+  all_dependent_configs = [ ":render_service_base_all_deps_config" ]
+  deps = [ "$rosen_root/modules/platform:eventhandler" ]
+  public_deps = [
+    ":render_service_base_src",
+    "src/platform:platform",
+  ]
+
+  if (defined(use_new_render_context) && use_new_render_context) {
+    public_deps += [ "src/render_backend:librender_backend" ]
+  }
+
+  part_name = "graphic_2d"
+  subsystem_name = "graphic"
+}

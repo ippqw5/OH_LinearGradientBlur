@@ -1,0 +1,64 @@
+/*
+ * Copyright (c) 2024 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+{
+  "app": {
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compileSdkVersion": 11,
+        "compatibleSdkVersion": 11,
+        "runtimeOS": "OpenHarmony"
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug"
+      },
+      {
+        "name": "release"
+      }
+    ],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "C:/Users/Admin/.ohos/config/openharmony/default_xcomponent-gradient-blur_yCvdsxVaVqImEOLyxlYNeN48njkBFbWPyOoXAwwEdSM=.cer",
+          "storePassword": "0000001B523AC444D786D1C6A1C6F8598F8539C73FF1231BC245EB25CF25CC4016D5EA6B550AD897972DF8",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001B604F50DAB127A52363C820115639FAF1216EF1428FCF32D696A4F99E71E484F0CFE9E710531EE9",
+          "profile": "C:/Users/Admin/.ohos/config/openharmony/default_xcomponent-gradient-blur_yCvdsxVaVqImEOLyxlYNeN48njkBFbWPyOoXAwwEdSM=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/Admin/.ohos/config/openharmony/default_xcomponent-gradient-blur_yCvdsxVaVqImEOLyxlYNeN48njkBFbWPyOoXAwwEdSM=.p12"
+        }
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}

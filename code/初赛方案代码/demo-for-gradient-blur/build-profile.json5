@@ -1,0 +1,49 @@
+{
+  "app": {
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compileSdkVersion": 11,
+        "compatibleSdkVersion": 11,
+        "runtimeOS": "OpenHarmony"
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug"
+      },
+      {
+        "name": "release"
+      }
+    ],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "C:/Users/Admin/.ohos/config/openharmony/default_demo-for-gradient-blur_qoPYj3O4e4iJEDXY_jdWXXsbMSgudzcc07VoAc0JvxM=.cer",
+          "storePassword": "0000001BE695C29384CFD6D68FF9630ED564AA33ED0602877D30CD04731B3681F4A67CA96EDCB914B26A2C",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BECF99273B6DF51A5366CDE80251238365CDE9E84E782F98402A57E1ED8ABAB682FB1D06962E6B9",
+          "profile": "C:/Users/Admin/.ohos/config/openharmony/default_demo-for-gradient-blur_qoPYj3O4e4iJEDXY_jdWXXsbMSgudzcc07VoAc0JvxM=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/Admin/.ohos/config/openharmony/default_demo-for-gradient-blur_qoPYj3O4e4iJEDXY_jdWXXsbMSgudzcc07VoAc0JvxM=.p12"
+        }
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    }
+  ]
+}
